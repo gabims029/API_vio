@@ -35,14 +35,14 @@ document
         //Convertendo o erro em fornato json
         return response.json().then((err) => {
           //Mensagem retornada do servidor, acessada pela chave 'error'
-          throw new error(err.error);
+          throw new Error(err.error);
         });
       }) //Fechamento da then(response)
       .then((data) => {
         //Executa a resposta de secesso - retorna ao usuário final
         //Exibe um alerta para o usuário final (front) com o nome do usuário que acabou de ser cadastrado
-        alert("Usuário cadastrado com sucesso! " + data.user.name);
-
+        // alert("Usuário cadastrado com sucesso! " + data.user.name);
+        alert(data.message);
         // Exibe o log no terminal
         console.log("Usuario criado: ", data.user);
 

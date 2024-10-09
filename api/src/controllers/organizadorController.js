@@ -1,4 +1,4 @@
-let organizadores = [];
+const connect = require("../db/connect");
 let nextId = 1;
 
 module.exports = class organizadorController {
@@ -15,26 +15,40 @@ module.exports = class organizadorController {
       });
     } else if (!email.includes("@")) {
       return res.status(400).json({ error: "Email inválido. Deve conter @" });
+    } else {
+      // Construção da query INSERT
+      const query = `INSERT INTO usuario (cpf, password, email, name) VALUES('${telefone}', 
+      '${password}', 
+      '${email}', 
+      '${name}')`;
+
+      // Executando a query  criada
+      try {
+        connect.query(query, function (err) {
+          if (err) {
+            console.log(err);
+            console.log(err.code);
+            if (err.code === "ER_DUP_ENTRY") {
+              return res
+                .status(400)
+                .json({ error: "O email já está vinculado a outro usuário" });
+            } else {
+              return res.status(500).json({
+                error: "Erro interno do servidor",
+              });
+            }
+          } else {
+            return res
+              .status(201)
+              .json({ message: "Usuário criado com sucesso" });
+          }
+        });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Erro interno do servidor" });
+      }
     }
-
-    // Verifica se já existe um organizador com o mesmo email
-    const existingOrganizador = organizadores.find(
-      (organizador) => organizador.email === email
-    );
-    if (existingOrganizador) {
-      return res.status(400).json({ error: "Email já cadastrado" });
-    }
-
-    // Cria e adiciona novo organizador
-    const newOrganizador = { id: nextId++, telefone, email, password, name };
-    organizadores.push(newOrganizador);
-
-    return res.status(201).json({
-      message: "Organizador criado com sucesso",
-      organizador: newOrganizador,
-    });
   }
-
   static async getAllOrganizador(req, res) {
     return res
       .status(200)
@@ -51,10 +65,6 @@ module.exports = class organizadorController {
         .status(400)
         .json({ error: "Todos os campos devem ser preenchidos" });
     }
-    //Procurar o indice do organizador no Arry 'organizadores' pelo id
-    const organizadorIndex = organizadores.findIndex(
-      (organizador) => organizador.id === id
-    );
 
     // Se o organizador não for entrontrado organizadorIndex equivale a -1
     if (organizadorIndex === -1) {
