@@ -3,9 +3,9 @@ let nextId = 1;
 
 module.exports = class organizadorController {
   static async createOrganizador(req, res) {
-    const { telefone, email, password, name } = req.body;
+    const { telefone, email, senha, nome } = req.body;
 
-    if (!telefone || !email || !password || !name) {
+    if (!telefone || !email || !senha || !name) {
       return res
         .status(400)
         .json({ error: "Todos os campos devem ser preenchidos" });
@@ -17,10 +17,10 @@ module.exports = class organizadorController {
       return res.status(400).json({ error: "Email inválido. Deve conter @" });
     } else {
       // Construção da query INSERT
-      const query = `INSERT INTO usuario (cpf, password, email, name) VALUES('${telefone}', 
-      '${password}', 
+      const query = `INSERT INTO organizador (telefone, senha, email, nome) VALUES('${telefone}', 
+      '${senha}', 
       '${email}', 
-      '${name}')`;
+      '${nome}')`;
 
       // Executando a query  criada
       try {
@@ -50,34 +50,43 @@ module.exports = class organizadorController {
     }
   }
   static async getAllOrganizador(req, res) {
-    return res
-      .status(200)
-      .json({ message: "Obtendo todos os organizadores", organizadores });
-  }
+      const query = `SELECT * FROM organizador`;
+  
+      try {
+        connect.query(query, function (err, results) {
+          if (err) {
+            console.error(err);
+            return res.status(500).json({ error: "Erro interno do Servidor" });
+          }
+          return res
+            .status(200)
+            .json({ message: "Lista de Organizador", organizadores: results });
+        });
+      } catch (error) {
+        console.error("Erro ao executar consulta:", error);
+        return res.status(500).json({ error: "Erro inertno do Servidor" });
+      }
+    }
 
   static async updateOrganizador(req, res) {
     //Desestrutura e recupera os dados enviados via corpo da requisição
-    const { id, telefone, email, password, name } = req.body;
+    const { id, telefone, email, senha, nome } = req.body;
 
     //Validar se todos os campos foram preenchidos
-    if (!id || !telefone || !email || !password || !name) {
+    if (!id || !telefone || !email || !senha || !nome) {
       return res
         .status(400)
         .json({ error: "Todos os campos devem ser preenchidos" });
     }
+    const query = `UPDATE organizador SET nome=?,email=?,senha=?,telefone=? WHERE id_organizador = ?`
+    const values = [nome, email, senha, telefone, id];
 
-    // Se o organizador não for entrontrado organizadorIndex equivale a -1
-    if (organizadorIndex === -1) {
-      return res.status(400).json({ error: "Organizador não encontrado" });
+    try{
+      connect.query(query,values,function(err,results){})
     }
+    catch{
 
-    //Atualiza os dados do organizador no Arry 'organizadores'
-    organizadores[organizadorIndex] = { id, telefone, email, password, name };
-
-    return res.status(200).json({
-      message: "Organizador atualizado",
-      organizador: organizadores[organizadorIndex],
-    });
+    }
   }
 
   static async deleteOrganizador(req, res) {

@@ -50,7 +50,22 @@ module.exports = class userController {
   }
 
   static async getAllUsers(req, res) {
-    return res.status(200).json({ message: "Obtendo todos os usuários" });
+    const query = `SELECT * FROM usuario`;
+
+    try {
+      connect.query(query, function (err, results) {
+        if (err) {
+          console.error(err);
+          return res.status(500).json({ error: "Erro interno do Servidor" });
+        }
+        return res
+          .status(200)
+          .json({ message: "Lista de Usuários", users: results });
+      });
+    } catch (error) {
+      console.error("Erro ao executar consulta:", error);
+      return res.status(500).json({ error: "Erro inertno do Servidor" });
+    }
   }
 
   static async updateUser(req, res) {
