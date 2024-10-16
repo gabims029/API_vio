@@ -5,7 +5,7 @@ module.exports = class organizadorController {
   static async createOrganizador(req, res) {
     const { telefone, email, senha, nome } = req.body;
 
-    if (!telefone || !email || !senha || !name) {
+    if (!telefone || !email || !senha || !nome) {
       return res
         .status(400)
         .json({ error: "Todos os campos devem ser preenchidos" });
@@ -50,23 +50,23 @@ module.exports = class organizadorController {
     }
   }
   static async getAllOrganizador(req, res) {
-      const query = `SELECT * FROM organizador`;
-  
-      try {
-        connect.query(query, function (err, results) {
-          if (err) {
-            console.error(err);
-            return res.status(500).json({ error: "Erro interno do Servidor" });
-          }
-          return res
-            .status(200)
-            .json({ message: "Lista de Organizador", organizadores: results });
-        });
-      } catch (error) {
-        console.error("Erro ao executar consulta:", error);
-        return res.status(500).json({ error: "Erro inertno do Servidor" });
-      }
+    const query = `SELECT * FROM organizador`;
+
+    try {
+      connect.query(query, function (err, results) {
+        if (err) {
+          console.error(err);
+          return res.status(500).json({ error: "Erro interno do Servidor" });
+        }
+        return res
+          .status(200)
+          .json({ message: "Lista de Organizador", organizadores: results });
+      });
+    } catch (error) {
+      console.error("Erro ao executar consulta:", error);
+      return res.status(500).json({ error: "Erro inertno do Servidor" });
     }
+  }
 
   static async updateOrganizador(req, res) {
     //Desestrutura e recupera os dados enviados via corpo da requisição
@@ -78,33 +78,52 @@ module.exports = class organizadorController {
         .status(400)
         .json({ error: "Todos os campos devem ser preenchidos" });
     }
-    const query = `UPDATE organizador SET nome=?,email=?,senha=?,telefone=? WHERE id_organizador = ?`
+    const query = `UPDATE organizador SET nome=?,email=?,senha=?,telefone=? WHERE id_organizador = ?`;
     const values = [nome, email, senha, telefone, id];
 
-    try{
-      connect.query(query,values,function(err,results){})
-    }
-    catch{
-
+    try {
+      connect.query(query, values, function (err, results) {
+        if (err) {
+          if (err.code === "ER_DUP_ENTRY") {
+            return res
+              .status(400)
+              .json({ error: "Email já cadastrado por outro organizador" });
+          } else {
+            console.error(err);
+            return res.status(500).json({ error: "Erro interno do servidor" });
+          }
+        }
+        if (results.affectedRows === 0) {
+          return res.status(404).json({ error: "Organizador não encontrado" });
+        }
+        return res.status(200).json({message:"Organizador atualizado com sucesso"});
+      });
+    } catch (error) {
+      console.error("Erro ao executar consulta",error);
+      return res.status(500).json({error:"Erro interno no servidor"})
     }
   }
 
   static async deleteOrganizador(req, res) {
-    //Obtém o parametro 'id' da requisição, que é o id de organizador a ser deletado
     const organizadorId = req.params.id;
+    const query = `DELETE FROM organizador WHERE id_organizador = ?`;
+    const values = [organizadorId]
 
-    //Procurar o indice do organizador no Arry 'organizadores' pelo email
-    const organizadorIndex = organizadores.findIndex(
-      (organizador) => organizador.id == organizadorId
-    );
-
-    // Se o organizador não for entrontrado organizadorIndex equivale a -1
-    if (organizadorIndex == -1) {
-      return res.status(400).json({ error: "Organizador não encontrado" });
+    try{
+      connect.query(query,values,function(err,results){
+        if(err){
+          console.error(err);
+          return res.status(500).json({error:"Erro interno do servidor"})
+        }
+        if(results.affectedRows === 0){
+          return res.status(404).json({error:"Organizador não encontrado"})
+        }
+        return res.status(200).json({message:"Organizador excluído com sucesso"})
+      })
     }
-
-    //Removendo o organizador do Array 'organizadores'
-    organizadores.splice(organizadorIndex, 1);
-    return res.status(200).json({ message: "Organizador apagado" });
+    catch(error){
+      console.error(error);
+      return res.status(500).json({error:"Erro interno no servidor"})
+    }
   }
 };
