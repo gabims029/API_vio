@@ -32,7 +32,9 @@
           <li><a href="#contato">Contato</a></li>
         </ul>
       </nav>
-      <button class="botao-header" onclick="window.location.href='index.html'">Home</button>
+      <button class="botao-header" onclick="window.location.href='index.html'">
+        Home
+      </button>
     </header>
 
     <!-- Conteúdo principal da página, onde informações principais são exibidas -->
@@ -42,7 +44,6 @@
       </section>
       <section>
         <form id="formulario-registro">
-
           <!--Entrada do Nome Completo-->
           <label for="nome">Nome completo:</label>
           <input type="text" id="nome" name="nome" required />
@@ -55,20 +56,46 @@
           <label for="email">E-mail:</label>
           <input type="email" id="email" name="email" required />
 
-         <!--Entrada da senha-->
+          <!--Entrada da senha-->
           <label for="senha">Senha:</label>
           <input type="password" id="senha" name="senha" required />
 
           <!--Botão para enviar o formulário-->
-          <input type="submit" value="Cadastrar"/>
-
+          <input type="submit" value="Cadastrar" />
         </form>
         <section>
           <!--Lista para exibir os usuários cadstrados-->
           <h2>Usuários Cadastrados:</h2>
           <ul id="user-list"></ul>
         </section>
+      </section>
 
+      <section>
+        <h2>Usuarios Cadastrados via Tabela</h2>
+        <table id="user-table">
+          <thead>
+            <th>Nome</th>
+            <th>CPF</th>
+            <th>E-mail</th>
+          </thead>
+          <tbody id="user-list-tabela">
+            <!-- Os usuários serão adicionados aqui -->
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>Organizadores Cadastrados via Tabela</h2>
+        <table id="organizador-table">
+          <thead>
+            <th>Nome</th>
+            <th>Telefone</th>
+            <th>E-mail</th>
+          </thead>
+          <tbody id="organizador-list-tabela">
+            <!-- Os organizadores serão adicionados aqui -->
+          </tbody>
+        </table>
       </section>
     </main>
 
@@ -80,7 +107,7 @@
 
     <script>
       function mostrarMensagem() {
-        alert("Olá! Você clicou no botão!")
+        alert("Olá! Você clicou no botão!");
       }
     </script>
     <script src="app.js"></script>
