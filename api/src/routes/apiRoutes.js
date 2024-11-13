@@ -20,6 +20,8 @@ router.post('/evento', eventoController.createEvento);
 router.get('/evento', eventoController.getAllEvento);
 router.put('/evento', eventoController.updateEvento);
 router.delete('/evento/:id', eventoController.deleteEvento);
+router.get('/evento/data', eventoController.getEventosPorData);
+router.get('/evento/:data_hora', eventoController.getListarEvento);
 
 router.post('/ingresso', ingressoController.createIngresso);
 router.get('/ingresso', ingressoController.getAllIngresso);
