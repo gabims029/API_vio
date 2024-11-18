@@ -18,7 +18,7 @@ function createUser(event) {
   const password = document.getElementById("senha").value;
 
   //Requisição HTTP para o endpoint de cadastro de usuário
-  fetch("http://10.89.240.3:5000/api/v1/user", {
+  fetch("http://10.89.240.99:5000/api/v1/user", {
     //Realiza uma chamada http para o servidor (a rota definida)
     method: "POST",
     headers: {
@@ -59,7 +59,7 @@ function createUser(event) {
 }//Fechamento createUser
 
 function getAllUsers(){
-  fetch("http://10.89.240.3:5000/api/v1/user/",{
+  fetch("http://10.89.240.99:5000/api/v1/user/",{
     method: "GET",
     headers:{
       "Content-Type": "application/json",
@@ -91,7 +91,7 @@ function getAllUsers(){
 }
 
 function getAllUsersTable(){
-  fetch("http://10.89.240.3:5000/api/v1/user/",{
+  fetch("http://10.89.240.99:5000/api/v1/user/",{
     method: "GET",
     headers:{
       "Content-Type": "application/json",
@@ -139,7 +139,7 @@ function getAllUsersTable(){
 }
 
 function getAllOrganizadorTable(){
-  fetch("http://10.89.240.3:5000/api/v1/organizador/",{
+  fetch("http://10.89.240.99:5000/api/v1/organizador/",{
     method: "GET",
     headers:{
       "Content-Type": "application/json",
