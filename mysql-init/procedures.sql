@@ -55,4 +55,58 @@ begin
 end // 
 delimiter ;
 
--- TABELA PARA TESTAR A CLÁSULA MODIFI
+-- Procedure para resumo do usuário
+delimiter $$
+create procedure resumo_usuario(in pid int)
+begin
+    declare nome varchar(100);
+    declare email varchar(100);
+    declare totalrs decimal(10,2);
+    declare faixa varchar(20);
+
+    -- Buscar o nome e o email do usuário
+    select u.name, u.email into nome, email
+    from usuario u 
+    where u.id_usuario = pid;
+
+    -- Chamada as funções específicas já criadas
+    set totalrs = calcula_total_gasto(pid);
+    set faixa = buscar_faixa_etaria_usuario(pid);
+
+    -- Exibe os dados formatados
+    select nome as nome_usuario,
+        email as email_usuario,
+        totalrs as total_gasto,
+        faixa as faixa_etaria;
+end $$
+delimiter ;
+
+
+
+delimiter $$
+create procedure resumo_evento(in id_evento int)
+begin
+    declare nome varchar(100);
+    declare data_hora datetime;
+    declare total int;
+    declare renda_total decimal(10,2);
+
+    -- busca informações básicas do evento
+    select nome, data_hora
+    into nome, data_hora
+    from evento e
+    where e.id_evento = id_evento;
+
+    -- usa as funções para calcular ingressos e renda
+    set total = total_ingressos_vendidos(id_evento);
+    set renda_total = renda_total_evento(id_evento);
+
+    -- exibe o resumo formatado
+    select 
+        nome as nome,
+        data_hora,
+        total as ingressos_vendidos,
+        renda_total as renda_total;
+end $$
+
+delimiter ;
