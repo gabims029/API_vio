@@ -1,39 +1,41 @@
 const connect = require("../db/connect");
 
 module.exports = class ingressoController {
-  //Criação do ingresso
+  //Criação de um evento
   static async createIngresso(req, res) {
-    const {preco, tipo, fk_id_evento} = req.body;
+    const { preco, tipo, fk_id_evento } = req.body;
 
     //Validação genérica de todos os atributos
     if (!preco || !tipo || !fk_id_evento) {
       return res
         .status(400)
-        .json({ error: "Todos os campos devem ser preenchidos" });
+        .json({ error: "Todos os campos devem ser preenchidos!" });
     }
 
-    const tipoMinusculo = tipo.toLowerCase();
-    if(tipoMinusculo !== "pista" && tipoMinusculo !== "vip"){
-        return res.status(400).json({error: "Tipo errado. Digite Pista ou Vip"})
+    const tipoMinusculo = tipo.toLowerCase()
+    if (tipoMinusculo !== "pista" && tipoMinusculo !== "vip") {
+      return res
+        .status(400)
+        .json({ error: "Tipo inválido! Digite Pista ou Vip" });
     }
-
-    const query = `insert into ingresso (preco, tipo, fk_id_evento) values ('${preco}', '${tipoMinusculo}', '${fk_id_evento}')`;
+    const query = `INSERT INTO ingresso (preco, tipo, fk_id_evento) values ('${preco}', '${tipoMinusculo}','${fk_id_evento}' )`;
     const values = [preco, tipoMinusculo, fk_id_evento];
     try {
       connect.query(query, values, (err) => {
         if (err) {
           console.log(err);
-          return res.status(500).json({ error: "Erro ao criar o ingresso :(" });
+          return res.status(500).json({ error: "Erro ao criar o Ingresso!" });
         }
-        return res.status(201).json({ message: "Ingresso criado com sucesso!" });
+        return res
+          .status(201)
+          .json({ message: "Ingresso criado com sucesso!" });
       });
     } catch (error) {
-      console.log("Erro ao executar consulta: ", error);
-      return res.status(500).json({ error: "Erro interno do servidor" });
+      console.log("Erro ao executar consulta:", err);
+      return res.status(500).json({ error: "Erro Interno do Servidor" });
     }
-  }
+  } //Fim createIngresso
 
-  //Vizualizar todos os ingressos cadastrados
   static async getAllIngresso(req, res) {
     const query = `SELECT * from ingresso`;
 
@@ -41,18 +43,51 @@ module.exports = class ingressoController {
       connect.query(query, (err, results) => {
         if (err) {
           console.log(err);
-          return res.status(500).json({ error: "Erro ao buscar ingressos" });
+          return res.status(500).json({ error: "Erro ao buscar ingressos!" });
         }
         return res
           .status(200)
           .json({
-            messagem: "Ingressos listados com sucesso!!",
-            events: results,
+            message: "Ingressos listados com sucesso!",
+            ingressos: results,
           });
       });
     } catch (error) {
-      console.log("Erro ao consultar a query: ", error);
-      return res.status(500).json({ arror: "Erro interno do servidor :(" });
+      console.log("Erro ao executar consulta:", err);
+      return res.status(500).json({ error: "Erro Interno do Servidor" });
+    }
+  } // Fim GET
+
+  static async getByIdEvento(req, res) {
+    const eventoId = req.params.id_evento;
+  
+    const query = `
+      SELECT 
+        ingresso.id_ingresso, 
+        ingresso.preco, 
+        ingresso.tipo, 
+        ingresso.fk_id_evento, 
+        evento.nome AS nome_evento
+      FROM ingresso
+      JOIN evento ON ingresso.fk_id_evento = evento.id_evento
+      WHERE evento.id_evento = ?;
+    `;
+  
+    try {
+      connect.query(query, [eventoId], (err, results) => {
+        if (err) {
+          console.error("Erro ao buscar ingressos por evento:", err);
+          return res.status(500).json({ error: "Erro ao buscar ingressos do evento" });
+        }
+  
+        res.status(200).json({
+          message: "Ingressos do evento obtidos com sucesso",
+          ingressos: results,
+        });
+      });
+    } catch (error) {
+      console.error("Erro ao executar a consulta:", error);
+      res.status(500).json({ error: "Erro interno do servidor" });
     }
   }
 
@@ -63,52 +98,63 @@ module.exports = class ingressoController {
     if (!id_ingresso || !preco || !tipo || !fk_id_evento) {
       return res
         .status(400)
-        .json({ error: "Todos os campos devem ser preenchidos" });
-    }
-    
-    const tipoMinusculo = tipo.toLowerCase();
-    if(tipoMinusculo !== "pista" && tipoMinusculo !== "vip"){
-        return res.status(400).json({error: "Tipo errado. Digite Pista ou Vip"})
+        .json({ error: "Todos os campos devem ser preenchidos!" });
     }
 
-    const query = `update ingresso set preco=?, tipo=?, fk_id_evento=? where id_ingresso=?`;
-    const values = [preco, tipo, fk_id_evento, id_ingresso];
+    const tipoMinusculo = tipo.toLowerCase()
+    if (tipoMinusculo !== "pista" && tipo !== "vip") {
+      return res
+        .status(400)
+        .json({ error: "Tipo inválido! Digite Pista ou Vip" });
+    } else {
+      const query = `UPDATE ingresso SET preco=?, tipo=?, fk_id_evento=? WHERE id_ingresso=?`;
+      const values = [preco, tipo, fk_id_evento, id_ingresso];
+      try {
+        connect.query(query, values, (err, results) => {
+          console.log("Resultados: ", results);
+          if (err) {
+            console.log(err);
+            return res
+              .status(500)
+              .json({ error: "Erro ao atualizar o ingresso!" });
+          }
+          if (results.affectedRows === 0) {
+            return res
+              .status(404)
+              .json({ error: "Ingresso não encontrado :(" });
+          }
+          return res
+            .status(200)
+            .json({ message: "Ingresso atualizado com sucesso!" });
+        });
+      } catch (error) {
+        console.log("Erro ao executar consulta:", err);
+        return res.status(500).json({ error: "Erro Interno do Servidor" });
+      }
+    }
+  } //Fim updateIngresso
+
+  //Exclusão de Ingresso
+  static async deleteIngresso(req, res) {
+    const idIngresso = req.params.id;
+    const query = `DELETE from ingresso WHERE id_ingresso=?`;
+
     try {
-      connect.query(query, values, (err, results) => {
-        console.log("Resultados: ",results);
+      connect.query(query, idIngresso, (err, results) => {
         if (err) {
           console.log(err);
-          return res.status(500).json({ error: "Erro ao atualizar o ingresso :(" });
+          return res.status(500).json({ error: "Erro ao excluir ingresso!" });
         }
-        if (results.affectedRows === 0){
-            return res.status(404).json({error: "Ingresso não encontrado :("});
+        if (results.affectedRows === 0) {
+          return res.status(404).json({ error: "Ingresso não encontrado!" });
         }
-        return res.status(200).json({ message: "Ingresso atualizado com sucesso!" });
+        return res
+          .status(200)
+          .json({ message: "Ingresso excluído com sucesso!" });
       });
-    }catch (error) {
-      console.log("Erro ao executar consulta: ", error);
-      return res.status(500).json({ error: "Erro interno do servidor" });
-    }
-  }
-
-  //Exclusão de ingresso
-  static async deleteIngresso(req, res){
-    const idIngresso = req.params.id;
-    const query = `delete from ingresso where id_ingresso=?`;
-
-    try {
-        connect.query(query, idIngresso, (err, results) => {
-            if(err){
-                console.log(err);
-                return res.status(400).json({error: "Erro ao excluir ingresso :( "});
-            }
-            if(results.affectedRows === 0){
-                return res.status(404).json({error: "Ingresso não encontrado"});
-            }
-        })
-    }catch(error){
-        console.log("Erro ao executar a consulta", error);
-        return res.status(500).json({error: "Erro interno do servidor"});
-    }
+    } catch (error) {
+      console.log("Erro ao executar a consulta!", err);
+      return res.status(500).json({ error: "Erro Interno do Servidor" });
+    }//Fim deleteIngresso
   }
 };

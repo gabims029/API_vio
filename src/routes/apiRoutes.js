@@ -29,5 +29,6 @@ router.post('/ingresso', ingressoController.createIngresso);
 router.get('/ingresso', ingressoController.getAllIngresso);
 router.put('/ingresso', ingressoController.updateIngresso);
 router.delete('/ingresso/:id', ingressoController.deleteIngresso);
+router.get('/ingresso/evento/:id_evento', ingressoController.getByIdEvento);
 
 module.exports = router
