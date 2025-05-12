@@ -7,16 +7,16 @@ delimiter //
 begin
     declare v_id_compra int;
 
-    --CRIA REGISTRO NA TABELA COMPRA
+    -- CRIA REGISTRO NA TABELA COMPRA
     insert into compra (data_compra, fk_id_usuario)
     values (now(), p_id_usuario);
 
-    --OBTER O ID DA COMPRA
+    -- OBTER O ID DA COMPRA
     set v_id_compra = last_insert_id();
 
-    --REGISTRAR OS INGRESSOS COMPRADOS
+    -- REGISTRAR OS INGRESSOS COMPRADOS
     insert into ingresso_compra (fk_id_compra, fk_id_ingresso, quantidade)
-        values (v_id_compra,p_id_ingresso, p_quantidade)
+        values (v_id_compra,p_id_ingresso, p_quantidade);
 end; //
 delimiter ;
 
