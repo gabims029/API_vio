@@ -5,6 +5,9 @@ const userController = require("../controllers/userController")
 const organizadorController = require("../controllers/organizadorController")
 const eventoController = require("../controllers/eventoController")
 const ingressoController = require("../controllers/ingressoController")
+const compraController = require("../controllers/compraController")
+
+
 
 
 router.post('/user', userController.createUser);
@@ -30,5 +33,8 @@ router.get('/ingresso', ingressoController.getAllIngresso);
 router.put('/ingresso', ingressoController.updateIngresso);
 router.delete('/ingresso/:id', ingressoController.deleteIngresso);
 router.get('/ingresso/evento/:id_evento', ingressoController.getByIdEvento);
+
+router.post('/comprasimples', compraController.registrarCompraSimples);
+router.post('/compra', compraController.registrarCompra);
 
 module.exports = router
