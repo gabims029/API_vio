@@ -2,32 +2,36 @@ version: "3.8"
 
 services:
   app:
-    ## O "." indica que a imagem do Docker será construida no Diretório atual
     build: .
     command: /bin/sh -c "npm install && npm start"
-    ## Mapeia a porta 5000 do container para porta 5000 da máquina
     ports:
       - "5000:5000"
-    ## Mostra o diretório atual da máquina host no diretório /usr/app dentro do container
     volumes:
       - .:/usr/app
-    ## Indica que o serviço app depende do serviço db
     depends_on:
-      - db
+      db:
+        condition: service_healthy  # Aguarda o healthcheck passar
 
   db:
     image: mysql:8.0
-    ## Configura o container para reiniciar automaticamente caso ele pare
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: vio_gabi
-    ## Mapeia a porta 3307 do container para porta 3307 da máquina
+      MYSQL_ROOT_PASSWORD: senai@604
+      MYSQL_DATABASE: vio
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_unicode_ci
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     ports:
       - "3307:3307"
     volumes:
       - db_data:/var/lib/mysql
       - ./mysql-init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
 volumes:
   db_data:

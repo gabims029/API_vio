@@ -20,7 +20,7 @@ module.exports = class userController {
         return res.status(400).json(cpfError);
       }
 
-      const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+      const hashedPassword =  await bcrypt.hash(password,SALT_ROUNDS);
 
       const query = `INSERT INTO usuario (cpf, password, email, name, data_nascimento) VALUES (?, ?, ?, ?, ?)`;
       connect.query(
@@ -118,6 +118,11 @@ module.exports = class userController {
       connect.query(query, values, function (err, results) {
         if (err) {
           console.error(err);
+          if (err.code === "ER_ROW_IS_REFERENCED_2") {
+            return res
+              .status(500)
+              .json({ error: "Este usuário não pode ser apagado" });
+          }
           return res.status(500).json({ error: "Erro interno do servidor" });
         }
 
@@ -135,7 +140,7 @@ module.exports = class userController {
     }
   }
 
-  // Método de Login - Implementar
+  // Método de Login 
   static async loginUser(req, res) {
     const { email, password } = req.body;
 
@@ -158,25 +163,29 @@ module.exports = class userController {
 
         const user = results[0];
 
-        //Comparar a senha enviada na requisição com o hash do banco
-        const passwordOk = bcrypt.compareSync(password, user.password);
+        // Comparar a senha enviada na requisição com o hash do banco
+        const passwordOK = bcrypt.compareSync(password,user.password);
 
-        if (!passwordOk) {
+        if (!passwordOK) {
           return res.status(401).json({ error: "Senha incorreta" });
         }
 
         const token = jwt.sign(
-          {id: user.id_usuario}, 
-          process.env.SECRET,
-          {expiresIn:"1h",}
-        );
+           {id: user.id_usuario }, 
+           process.env.SECRET, 
+           {expiresIn: "1h",}
+          );
 
-        //REMOVE UM ATRIBUTO DE UM OBJ
-        delete user.password;
+          // Remove um atributo de um obj
+          delete user.password;
 
-        return res.status(200).json({message: "Login bem secedido", 
-        user,
-        token})
+          return res.status(200).json({
+            message: "Login bem-sucedido",
+            user,
+            token
+          })
+
+
       });
     } catch (error) {
       console.error("Erro ao executar a consulta:", error);

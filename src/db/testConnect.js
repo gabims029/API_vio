@@ -8,9 +8,9 @@ module.exports = function testConnect() {
         console.log("Conexão não realizada", err);
         return;
       }
-      console.log("Conexão realizada com Mysql");
+      console.log('Conexão realizada com Mysql')
     });
-  } catch (error) {
-    console.error("Erro a executar a consulta:", erro);
+  } catch(error) {
+    console.error("Erro a executar a consulta:", error);
   }
 };
